@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPPORTIUM — Product Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #FF4010;
+  --graphite: #2C2C2C;
+  --teal: #006064;
+  --bg: #F5F5F5;
+  --white: #ffffff;
+  --border: #E0E0E0;
+  --muted: #888;
+  --surface: #FAFAFA;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--graphite); min-height: 100vh; }
+
+/* SIDEBAR */
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; background: var(--white); border-right: 1px solid var(--border); padding: 0; position: fixed; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; z-index: 10; }
+.sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid var(--border); }
+.logo-word { font-size: 15px; letter-spacing: .2em; font-weight: 200; color: var(--graphite); display: block; border-bottom: 2px solid var(--orange); padding-bottom: 3px; width: fit-content; }
+.logo-tag { font-size: 10px; color: var(--muted); margin-top: 5px; display: block; letter-spacing: .05em; }
+.sidebar-stats { padding: 16px 24px; border-bottom: 1px solid var(--border); }
+.stat-mini { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.stat-mini:last-child { margin-bottom: 0; }
+.stat-mini-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.stat-mini-val { font-size: 13px; font-weight: 500; color: var(--graphite); }
+.stat-mini-val.orange { color: var(--orange); }
+.nav { padding: 12px 0; flex: 1; }
+.nav-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; padding: 8px 24px 4px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 24px; cursor: pointer; font-size: 13px; color: var(--muted); transition: all .15s; border-left: 2px solid transparent; }
+.nav-item:hover { color: var(--graphite); background: var(--bg); }
+.nav-item.active { color: var(--graphite); background: var(--bg); border-left-color: var(--orange); font-weight: 500; }
+.nav-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--orange); min-width: 16px; }
+
+/* MAIN */
+.main { margin-left: 220px; padding: 32px 36px; flex: 1; }
+.page-header { margin-bottom: 28px; }
+.page-title { font-size: 22px; font-weight: 300; color: var(--graphite); letter-spacing: -.01em; }
+.page-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* CARDS */
+.kanban { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.col { }
+.col-head { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.col-dot { width: 7px; height: 7px; border-radius: 50%; }
+.card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; transition: box-shadow .15s; cursor: default; }
+.card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.card-title { font-size: 13px; font-weight: 500; color: var(--graphite); margin-bottom: 3px; line-height: 1.4; }
+.card-client { font-size: 11px; color: var(--muted); margin-bottom: 7px; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 500; letter-spacing: .01em; }
+.tag-orange { background: #FFF0EB; color: #CC3308; }
+.tag-blue { background: #E8F4F8; color: #006064; }
+.tag-green { background: #EAF5E9; color: #2E7D32; }
+.tag-gray { background: #F0F0F0; color: #666; }
+.tag-amber { background: #FFF8E1; color: #F57F17; }
+.tag-red { background: #FFF0EB; color: #CC3308; }
+.card-meta { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.empty-col { border: 1px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; font-size: 12px; color: #CCC; }
+
+/* STATS ROW */
+.stats-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 28px; }
+.stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.stat-card-label { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 6px; }
+.stat-card-val { font-size: 22px; font-weight: 300; color: var(--graphite); letter-spacing: -.02em; }
+.stat-card-val span { font-size: 12px; color: var(--muted); font-weight: 400; }
+
+/* TABLE / LIST */
+.list { display: flex; flex-direction: column; gap: 6px; }
+.list-item { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
+.list-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.list-name { font-size: 13px; font-weight: 500; color: var(--graphite); flex: 1; min-width: 0; }
+.list-proj { font-size: 11px; color: var(--muted); min-width: 100px; }
+.list-date { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); min-width: 130px; text-align: right; }
+
+/* IDEAS GRID */
+.ideas-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.idea-col-head { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; padding: 5px 10px; border-radius: 5px; margin-bottom: 10px; display: inline-block; }
+.alta-head { background: #FFECE6; color: #CC3308; }
+.media-head { background: #FFF8E1; color: #F57F17; }
+.baixa-head { background: #E8F4F8; color: #006064; }
+
+/* KB */
+.kb-list { display: flex; flex-direction: column; gap: 6px; }
+.kb-item { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; display: grid; grid-template-columns: 1fr 160px 120px; align-items: center; gap: 12px; }
+.kb-name { font-size: 13px; font-weight: 500; color: var(--graphite); }
+.kb-cat { font-size: 11px; color: var(--muted); }
+.kb-proj-tag { font-size: 10px; padding: 3px 8px; background: var(--bg); border-radius: 4px; color: var(--muted); font-weight: 500; text-align: right; }
+.kb-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 16px 0 8px; font-weight: 500; }
+
+/* TEAM */
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.member { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; align-items: center; gap: 12px; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+.member-name { font-size: 13px; font-weight: 500; color: var(--graphite); }
+.member-role { font-size: 11px; color: var(--muted); }
+.member-type { font-size: 10px; margin-top: 4px; }
+
+/* SECTION TABS */
+.section-divider { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 20px 0 10px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+.section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* BADGE */
+.badge-prod { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 2px 8px; border-radius: 4px; background: #EAF5E9; color: #2E7D32; font-weight: 500; }
+.badge-dev { background: #FFF8E1; color: #F57F17; }
+.badge-back { background: #F0F0F0; color: #666; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .sidebar { width: 60px; }
+  .sidebar-logo, .sidebar-stats, .nav-label, .nav-item span:not(.nav-num) { display: none; }
+  .nav-item { padding: 12px; justify-content: center; }
+  .main { margin-left: 60px; padding: 20px; }
+  .kanban { grid-template-columns: 1fr 1fr; }
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+  .kb-item { grid-template-columns: 1fr 100px; }
+  .kb-proj-tag { display: none; }
+}
+@media (max-width: 600px) {
+  .kanban { grid-template-columns: 1fr; }
+  .ideas-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-word">OPPORTIUM</span>
+      <span class="logo-tag">software house & consulting</span>
+    </div>
+    <div class="sidebar-stats">
+      <div class="stat-mini"><span class="stat-mini-label">projetos</span><span class="stat-mini-val">18</span></div>
+      <div class="stat-mini"><span class="stat-mini-label">em produção</span><span class="stat-mini-val orange">2</span></div>
+      <div class="stat-mini"><span class="stat-mini-label">receita ativa</span><span class="stat-mini-val">R$90k</span></div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">produto</div>
+      <div class="nav-item active" onclick="show('kanban',this)"><span class="nav-num">05</span><span>projetos</span></div>
+      <div class="nav-item" onclick="show('monitor',this)"><span class="nav-num">01</span><span>monitor</span></div>
+      <div class="nav-item" onclick="show('ideas',this)"><span class="nav-num">02</span><span>ideias</span></div>
+      <div class="nav-item" onclick="show('kb',this)"><span class="nav-num">03</span><span>knowledge base</span></div>
+      <div class="nav-item" onclick="show('month',this)"><span class="nav-num">04</span><span>plano mensal</span></div>
+      <div class="nav-label">empresa</div>
+      <div class="nav-item" onclick="show('team',this)"><span class="nav-num">06</span><span>time</span></div>
+      <div class="nav-item" onclick="show('clientes',this)"><span class="nav-num">07</span><span>clientes</span></div>
+    </nav>
+  </aside>
+
+  <main class="main">
+
+    <!-- 05 PROJETOS KANBAN -->
+    <div id="kanban" class="section active">
+      <div class="page-header">
+        <div class="page-title">portfólio de projetos</div>
+        <div class="page-sub">kanban por status · 18 projetos</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-card-label">total</div><div class="stat-card-val">18</div></div>
+        <div class="stat-card"><div class="stat-card-label">em produção</div><div class="stat-card-val" style="color:#2E7D32">2</div></div>
+        <div class="stat-card"><div class="stat-card-label">em desenvolvimento</div><div class="stat-card-val" style="color:#F57F17">1</div></div>
+        <div class="stat-card"><div class="stat-card-label">backlog</div><div class="stat-card-val">15</div></div>
+        <div class="stat-card"><div class="stat-card-label">receita ativa</div><div class="stat-card-val">R$95<span>k</span></div></div>
+      </div>
+      <div class="kanban">
+        <div class="col">
+          <div class="col-head"><span class="col-dot" style="background:#2E7D32"></span>em produção</div>
+          <div class="card">
+            <div class="card-title">LegalScraper</div>
+            <div class="card-client">Cliente jurídico</div>
+            <div class="card-tags"><span class="tag tag-orange">Software</span><span class="tag tag-green">MVP aprovado</span></div>
+            <div class="card-meta">R$ 90.000 · 23/02/2026</div>
+          </div>
+          <div class="card">
+            <div class="card-title">App Erika</div>
+            <div class="card-client">Erika — mentora/influencer</div>
+            <div class="card-tags"><span class="tag tag-blue">App</span><span class="tag tag-green">Contrato assinado</span></div>
+            <div class="card-meta">R$ 5.000 · site complementar incluso</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="col-head"><span class="col-dot" style="background:#F57F17"></span>em desenvolvimento</div>
+          <div class="card">
+            <div class="card-title">Frontend React — LegalScraper</div>
+            <div class="card-tags"><span class="tag tag-amber">Em andamento</span></div>
+            <div class="card-meta">API v1.6.1 · Railway + Vercel</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Workspace Notion OPPORTIUM</div>
+            <div class="card-tags"><span class="tag tag-amber">Em andamento</span></div>
+            <div class="card-meta">Gestão interna</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="col-head"><span class="col-dot" style="background:#185FA5"></span>em proposta</div>
+          <div class="empty-col">nenhum projeto em proposta</div>
+        </div>
+
+        <div class="col">
+          <div class="col-head"><span class="col-dot" style="background:#CCC"></span>backlog</div>
+          <div class="card"><div class="card-title">Site Buffet</div><div class="card-tags"><span class="tag tag-gray">Site</span></div></div>
+          <div class="card"><div class="card-title">Site Barbearia</div><div class="card-tags"><span class="tag tag-gray">Site</span></div></div>
+          <div class="card"><div class="card-title">App Dra. Antonielle</div><div class="card-tags"><span class="tag tag-blue">App</span></div></div>
+          <div class="card"><div class="card-title">App Gustavo C</div><div class="card-tags"><span class="tag tag-blue">App</span></div></div>
+          <div class="card"><div class="card-title">Buscador de Passagens</div><div class="card-client">Skyligning · produto próprio</div><div class="card-tags"><span class="tag tag-blue">App</span></div></div>
+          <div class="card"><div class="card-title">Poupa Aí</div><div class="card-client">Produto próprio</div><div class="card-tags"><span class="tag tag-blue">App</span></div></div>
+          <div class="card"><div class="card-title">Scraping de Dados</div><div class="card-client">Camila</div><div class="card-tags"><span class="tag tag-orange">Software</span></div></div>
+          <div class="card"><div class="card-title">Ferramenta de Pricing</div><div class="card-tags"><span class="tag tag-orange">Software</span></div></div>
+          <div class="card"><div class="card-title">Agentes de IA de Pricing</div><div class="card-tags"><span class="tag tag-orange">Software</span></div></div>
+          <div class="card"><div class="card-title">Incube</div><div class="card-tags"><span class="tag tag-orange">Software</span></div></div>
+          <div class="card"><div class="card-title">Staedler</div><div class="card-tags"><span class="tag tag-orange">Software</span></div></div>
+          <div class="card"><div class="card-title">Correspondentes CAIXA</div><div class="card-tags"><span class="tag tag-orange">Software</span></div></div>
+          <div class="card"><div class="card-title">Zele</div><div class="card-client">Fernanda · Indaiatuba</div><div class="card-tags"><span class="tag tag-orange">Software</span></div></div>
+          <div class="card"><div class="card-title">Programa Social</div><div class="card-client">Carmen</div><div class="card-tags"><span class="tag tag-orange">Software</span></div></div>
+          <div class="card"><div class="card-title">Atas de Condomínio</div><div class="card-tags"><span class="tag tag-gray">HTML</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 01 MONITOR -->
+    <div id="monitor" class="section">
+      <div class="page-header">
+        <div class="page-title">01 monitor how it goes</div>
+        <div class="page-sub">sprints, epics e marcos · sequência cronológica</div>
+      </div>
+      <div class="section-divider">LegalScraper — MVP</div>
+      <div class="list">
+        <div class="list-item"><span class="list-dot" style="background:#2E7D32"></span><span class="list-name">Integração API v1.6.1</span><span class="list-proj">LegalScraper</span><span class="tag tag-green">Epic ✓</span><span class="list-date">21/02/2026</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#F57F17"></span><span class="list-name">MVP LegalScraper</span><span class="list-proj">LegalScraper</span><span class="tag tag-amber">Sprint</span><span class="list-date">10/02 → 23/02/2026</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#F57F17"></span><span class="list-name">CORS + Railway</span><span class="list-proj">LegalScraper</span><span class="tag tag-amber">Sprint</span><span class="list-date">21/02 → 23/02</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#F57F17"></span><span class="list-name">Frontend React</span><span class="list-proj">LegalScraper</span><span class="tag tag-amber">Sprint</span><span class="list-date">21/02 → 23/02</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Deploy Vercel</span><span class="list-proj">LegalScraper</span><span class="tag tag-gray">Sprint</span><span class="list-date">22/02 → 23/02</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#FF4010"></span><span class="list-name">Entrega MVP ao cliente</span><span class="list-proj">LegalScraper</span><span class="tag tag-orange">Marco</span><span class="list-date">23/02/2026</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#FF4010"></span><span class="list-name">Assinatura NDA</span><span class="list-proj">LegalScraper</span><span class="tag tag-orange">Marco</span><span class="list-date">23/02/2026</span></div>
+      </div>
+      <div class="section-divider">próximos projetos</div>
+      <div class="list">
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Escopo App Erika — pós-produção</span><span class="list-proj">App Erika</span><span class="tag tag-gray">Sprint</span><span class="list-date">a definir</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">MVP Buscador de Passagens</span><span class="list-proj">Buscador</span><span class="tag tag-gray">Sprint</span><span class="list-date">a definir</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Escopo Ferramenta de Pricing</span><span class="list-proj">Pricing</span><span class="tag tag-gray">Epic</span><span class="list-date">a definir</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">MVP Poupa Aí</span><span class="list-proj">Poupa Aí</span><span class="tag tag-gray">Sprint</span><span class="list-date">a definir</span></div>
+      </div>
+    </div>
+
+    <!-- 02 IDEIAS -->
+    <div id="ideas" class="section">
+      <div class="page-header">
+        <div class="page-title">02 collect your ideas</div>
+        <div class="page-sub">registre e classifique por prioridade</div>
+      </div>
+      <div class="ideas-grid">
+        <div>
+          <div class="idea-col-head alta-head">Alta prioridade</div>
+          <div class="card"><div class="card-title">Painel analytics para cliente</div><div class="card-tags"><span class="tag tag-orange">Feature</span><span class="tag tag-gray">LegalScraper</span></div></div>
+          <div class="card"><div class="card-title">Alertas por e-mail em novos processos</div><div class="card-tags"><span class="tag tag-orange">Feature</span><span class="tag tag-gray">LegalScraper</span></div></div>
+          <div class="card"><div class="card-title">Proposta Camila — scraping de dados</div><div class="card-tags"><span class="tag tag-blue">Comercial</span><span class="tag tag-gray">Scraping</span></div></div>
+          <div class="card"><div class="card-title">Conectar Pricing + Agentes IA</div><div class="card-tags"><span class="tag tag-blue">Estratégia</span><span class="tag tag-gray">Pricing</span></div></div>
+        </div>
+        <div>
+          <div class="idea-col-head media-head">Média prioridade</div>
+          <div class="card"><div class="card-title">Exportação PDF além de Excel</div><div class="card-tags"><span class="tag tag-orange">Feature</span><span class="tag tag-gray">LegalScraper</span></div></div>
+          <div class="card"><div class="card-title">Integração DATe Solutions</div><div class="card-tags"><span class="tag tag-blue">Integração</span><span class="tag tag-gray">LegalScraper</span></div></div>
+          <div class="card"><div class="card-title">Processo de onboarding de clientes</div><div class="card-tags"><span class="tag tag-blue">Estratégia</span><span class="tag tag-gray">OPPORTIUM</span></div></div>
+          <div class="card"><div class="card-title">Landing page OPPORTIUM v6</div><div class="card-tags"><span class="tag tag-green">Marketing</span></div></div>
+          <div class="card"><div class="card-title">App Letícia — personal trainer</div><div class="card-tags"><span class="tag tag-amber">Produto próprio</span></div></div>
+        </div>
+        <div>
+          <div class="idea-col-head baixa-head">Baixa prioridade</div>
+          <div class="card"><div class="card-title">Versão mobile LegalScraper</div><div class="card-tags"><span class="tag tag-orange">Feature</span><span class="tag tag-gray">LegalScraper</span></div></div>
+          <div class="card"><div class="card-title">Documentar stack padrão OPPORTIUM</div><div class="card-tags"><span class="tag tag-blue">Estratégia</span></div></div>
+          <div class="card"><div class="card-title">Template de proposta atualizado</div><div class="card-tags"><span class="tag tag-green">Marketing</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 KNOWLEDGE BASE -->
+    <div id="kb" class="section">
+      <div class="page-header">
+        <div class="page-title">03 build your knowledge base</div>
+        <div class="page-sub">documentos, contratos, templates e referências da OPPORTIUM</div>
+      </div>
+      <div class="kb-section-title">contratos & NDAs</div>
+      <div class="kb-list">
+        <div class="kb-item"><div class="kb-name">NDA OPPORTIUM × Cliente LegalScraper <span style="font-size:10px;color:#2E7D32">✓ gerado</span></div><div class="kb-cat">📄 Contratos & NDAs</div><div class="kb-proj-tag">LegalScraper</div></div>
+      </div>
+      <div class="kb-section-title">documentação técnica</div>
+      <div class="kb-list">
+        <div class="kb-item"><div class="kb-name">Manual API v1.6.0</div><div class="kb-cat">📋 Documentação técnica</div><div class="kb-proj-tag">LegalScraper</div></div>
+        <div class="kb-item"><div class="kb-name">Manual API v1.6.1 — Hardening</div><div class="kb-cat">📋 Documentação técnica</div><div class="kb-proj-tag">LegalScraper</div></div>
+        <div class="kb-item"><div class="kb-name">Project Tracker LegalScraper <span style="font-size:10px;color:#2E7D32">✓ gerado</span></div><div class="kb-cat">📊 Gestão de projeto</div><div class="kb-proj-tag">LegalScraper</div></div>
+      </div>
+      <div class="kb-section-title">marca & identidade</div>
+      <div class="kb-list">
+        <div class="kb-item"><div class="kb-name">Brand System OPPORTIUM</div><div class="kb-cat">🎨 Marca & Identidade</div><div class="kb-proj-tag">OPPORTIUM</div></div>
+        <div class="kb-item"><div class="kb-name">Brand System Vereon</div><div class="kb-cat">🎨 Marca & Identidade</div><div class="kb-proj-tag">Vereon</div></div>
+      </div>
+      <div class="kb-section-title">propostas & templates</div>
+      <div class="kb-list">
+        <div class="kb-item"><div class="kb-name">Proposta LegalScraper MVP <span style="font-size:10px;color:#2E7D32">✓ aprovada R$90k</span></div><div class="kb-cat">💼 Propostas</div><div class="kb-proj-tag">LegalScraper</div></div>
+        <div class="kb-item"><div class="kb-name">Template NDA editável <span style="font-size:10px;color:#2E7D32">✓ gerado</span></div><div class="kb-cat">📁 Templates</div><div class="kb-proj-tag">OPPORTIUM</div></div>
+        <div class="kb-item"><div class="kb-name">Template de proposta comercial</div><div class="kb-cat">📁 Templates</div><div class="kb-proj-tag">OPPORTIUM</div></div>
+      </div>
+      <div class="kb-section-title">processos internos</div>
+      <div class="kb-list">
+        <div class="kb-item"><div class="kb-name">Stack técnica padrão</div><div class="kb-cat">🔧 Processos internos</div><div class="kb-proj-tag">OPPORTIUM</div></div>
+        <div class="kb-item"><div class="kb-name">Processo de onboarding de clientes</div><div class="kb-cat">🔧 Processos internos</div><div class="kb-proj-tag">OPPORTIUM</div></div>
+      </div>
+    </div>
+
+    <!-- 04 PLANO -->
+    <div id="month" class="section">
+      <div class="page-header">
+        <div class="page-title">04 plan your month</div>
+        <div class="page-sub">semanas em andamento e backlog geral</div>
+      </div>
+      <div class="section-divider">esta semana — fevereiro 2026</div>
+      <div class="list">
+        <div class="list-item"><span class="list-dot" style="background:#F57F17"></span><span class="list-name">CORS + Railway liberado</span><span class="list-proj">Sócio backend</span><span class="tag tag-gray">Infraestrutura</span><span class="list-date">21/02</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#F57F17"></span><span class="list-name">Finalizar frontend React</span><span class="list-proj">Rúbia</span><span class="tag tag-blue">Dev</span><span class="list-date">23/02</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Deploy Vercel</span><span class="list-proj">Rúbia</span><span class="tag tag-gray">Infraestrutura</span><span class="list-date">23/02</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Assinatura NDA com cliente</span><span class="list-proj">Rúbia</span><span class="tag tag-orange">Comercial</span><span class="list-date">23/02</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Entrega MVP ao cliente</span><span class="list-proj">Rúbia + sócio</span><span class="tag tag-orange">Marco</span><span class="list-date">23/02</span></div>
+      </div>
+      <div class="section-divider">backlog geral</div>
+      <div class="list">
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Iniciar escopo App Erika</span><span class="list-proj">App Erika</span><span class="tag tag-orange">ALTA</span><span class="list-date">—</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Proposta Camila — scraping</span><span class="list-proj">Scraping Camila</span><span class="tag tag-orange">ALTA</span><span class="list-date">—</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Definir escopo Ferramenta de Pricing</span><span class="list-proj">Pricing</span><span class="tag tag-amber">MÉDIA</span><span class="list-date">—</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Landing page OPPORTIUM v6</span><span class="list-proj">OPPORTIUM</span><span class="tag tag-amber">MÉDIA</span><span class="list-date">—</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Documentar processo onboarding</span><span class="list-proj">OPPORTIUM</span><span class="tag tag-gray">BAIXA</span><span class="list-date">—</span></div>
+      </div>
+    </div>
+
+    <!-- 06 TIME -->
+    <div id="team" class="section">
+      <div class="page-header">
+        <div class="page-title">06 organize your team</div>
+        <div class="page-sub">sócios e funções da OPPORTIUM</div>
+      </div>
+      <div class="team-grid">
+        <div class="member">
+          <div class="avatar" style="background:#FFF0EB;color:#CC3308">RR</div>
+          <div>
+            <div class="member-name">Rúbia</div>
+            <div class="member-role">Product Owner · UX/UI · Comercial</div>
+            <div class="member-type"><span class="tag tag-orange">PM</span></div>
+          </div>
+        </div>
+        <div class="member">
+          <div class="avatar" style="background:#E8F4F8;color:#006064">SB</div>
+          <div>
+            <div class="member-name">Sócio backend</div>
+            <div class="member-role">Python · FastAPI · Railway · Scraping</div>
+            <div class="member-type"><span class="tag tag-blue">Dev</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="section-divider" style="margin-top:24px">stack padrão</div>
+      <div class="list">
+        <div class="list-item"><span class="list-name" style="font-size:12px;font-weight:400;color:var(--muted)">Frontend</span><span class="list-proj" style="font-size:13px;font-weight:500;color:var(--graphite);min-width:auto;flex:1">React + Tailwind + GitHub + Vercel</span></div>
+        <div class="list-item"><span class="list-name" style="font-size:12px;font-weight:400;color:var(--muted)">Backend</span><span class="list-proj" style="font-size:13px;font-weight:500;color:var(--graphite);min-width:auto;flex:1">Python + FastAPI + Railway</span></div>
+        <div class="list-item"><span class="list-name" style="font-size:12px;font-weight:400;color:var(--muted)">HTML estático</span><span class="list-proj" style="font-size:13px;font-weight:500;color:var(--graphite);min-width:auto;flex:1">GitHub + Vercel</span></div>
+        <div class="list-item"><span class="list-name" style="font-size:12px;font-weight:400;color:var(--muted)">Gestão</span><span class="list-proj" style="font-size:13px;font-weight:500;color:var(--graphite);min-width:auto;flex:1">Notion · Claude</span></div>
+      </div>
+    </div>
+
+    <!-- 07 CLIENTES -->
+    <div id="clientes" class="section">
+      <div class="page-header">
+        <div class="page-title">07 clientes & parceiros</div>
+        <div class="page-sub">8 clientes mapeados</div>
+      </div>
+      <div class="list">
+        <div class="list-item"><span class="list-dot" style="background:#2E7D32"></span><span class="list-name">Cliente jurídico</span><span class="list-proj">LegalScraper</span><span class="tag tag-green">Ativo</span><span class="list-date">R$90k · 23/02/2026</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#2E7D32"></span><span class="list-name">Erika</span><span class="list-proj">App + Site mentora</span><span class="tag tag-green">Ativo</span><span class="list-date">R$5.000 · contrato assinado</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Dra. Antonielle</span><span class="list-proj">App</span><span class="tag tag-gray">A mapear</span><span class="list-date">—</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Gustavo C</span><span class="list-proj">App</span><span class="tag tag-gray">A mapear</span><span class="list-date">—</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Camila</span><span class="list-proj">Scraping de dados</span><span class="tag tag-gray">A mapear</span><span class="list-date">—</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Staedler</span><span class="list-proj">Software</span><span class="tag tag-gray">A mapear</span><span class="list-date">—</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Fernanda</span><span class="list-proj">Zele · bolsas · Indaiatuba</span><span class="tag tag-gray">A mapear</span><span class="list-date">—</span></div>
+        <div class="list-item"><span class="list-dot" style="background:#CCC"></span><span class="list-name">Carmen</span><span class="list-proj">Programa Social</span><span class="tag tag-gray">A mapear</span><span class="list-date">—</span></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+function show(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
